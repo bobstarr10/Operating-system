@@ -1,0 +1,40 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ProcessSynchronization : MonoBehaviour
+{
+    public Text process1Status;
+    public Text process2Status;
+
+    private bool[] flag = new bool[2];
+    private int turn = 0;
+
+    public void AccessCriticalSection(int process)
+    {
+        int other = 1 - process;
+
+        flag[process] = true;
+        turn = other;
+
+        while (flag[other] && turn == other)
+        {
+            // Busy wait
+        }
+
+        // Critical section
+        if (process == 0)
+            process1Status.text = "Critical Section";
+        else
+            process2Status.text = "Critical Section";
+
+        Invoke("LeaveCriticalSection", 2.0f); // Simulate time in critical section
+    }
+
+public void LeaveCriticalSection()
+    {
+        process1Status.text = "Idle";
+        process2Status.text = "Idle";
+
+        flag[0] = flag[1] = false;
+    }
+}
