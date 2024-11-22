@@ -1,0 +1,62 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+public class LRUAlgorithm : MonoBehaviour
+{
+    public Text pageQueueText;
+    public Text memorySlotsText;
+    public Text resultText;
+    public Button nextStepButton;
+
+    private List<int> memorySlots = new List<int>();
+    private List<int> pageRequests = new List<int> { 1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5 }; // Example
+    private int memorySize = 3; // Number of available slots
+    private int currentRequestIndex = 0;
+    private int pageFaults = 0;
+
+    void Start()
+    {
+        UpdateUI();
+        nextStepButton.onClick.AddListener(ProcessNextStep);
+    }
+
+    void ProcessNextStep()
+    {
+        if (currentRequestIndex >= pageRequests.Count)
+        {
+            resultText.text = "Simulation Complete! Page Faults: " + pageFaults;
+            nextStepButton.interactable = false;
+            return;
+        }
+
+        int currentPage = pageRequests[currentRequestIndex];
+
+        if (!memorySlots.Contains(currentPage))
+        {
+            if (memorySlots.Count >= memorySize)
+            {
+                // Remove the least recently used page
+                memorySlots.RemoveAt(0);
+            }
+            memorySlots.Add(currentPage); // Add new page
+            pageFaults++;
+        }
+        else
+        {
+            // Move the accessed page to the most recently used position
+            memorySlots.Remove(currentPage);
+            memorySlots.Add(currentPage);
+        }
+
+        currentRequestIndex++;
+        UpdateUI();
+    }
+
+    void UpdateUI()
+    {
+        pageQueueText.text = "Page Queue: " + string.Join(", ", pageRequests);
+        memorySlotsText.text = "Memory Slots: " + string.Join(", ", memorySlots);
+        resultText.text = "Page Faults: " + pageFaults;
+    }
+}
