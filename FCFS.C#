@@ -1,0 +1,63 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+public class CPU_Scheduling : MonoBehaviour
+{
+    public InputField processInput;
+    public InputField burstTimeInput;
+    public InputField arrivalTimeInput;
+    public Text resultText;
+
+    private class Process
+    {
+        public int id;
+        public int burstTime;
+        public int arrivalTime;
+        public int waitingTime;
+        public int turnaroundTime;
+    }
+
+ public void SimulateFCFS()
+    {
+        string[] burstTimes = burstTimeInput.text.Split(',');
+        string[] arrivalTimes = arrivalTimeInput.text.Split(',');
+
+        List<Process> processes = new List<Process>();
+
+        for (int i = 0; i < burstTimes.Length; i++)
+        {
+            processes.Add(new Process
+            {
+                id = i + 1,
+                burstTime = int.Parse(burstTimes[i]),
+                arrivalTime = int.Parse(arrivalTimes[i])
+            });
+        }
+
+ processes.Sort((a, b) => a.arrivalTime.CompareTo(b.arrivalTime));
+
+        int currentTime = 0;
+        float totalWaitingTime = 0;
+        float totalTurnaroundTime = 0;
+
+        foreach (var process in processes)
+        {
+            process.waitingTime = currentTime - process.arrivalTime;
+            currentTime += process.burstTime;
+            process.turnaroundTime = process.waitingTime + process.burstTime;
+
+            totalWaitingTime += process.waitingTime;
+            totalTurnaroundTime += process.turnaroundTime;
+        }
+
+string result = "FCFS Results:\n";
+        foreach (var process in processes)
+        {
+            result += $"P{process.id}: WT = {process.waitingTime}, TAT = {process.turnaroundTime}\n";
+        }
+        result += $"Average WT = {totalWaitingTime / processes.Count}, Average TAT = {totalTurnaroundTime / processes.Count}";
+
+        resultText.text = result;
+    }
+}
